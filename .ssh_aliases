@@ -6,6 +6,10 @@ alogin() {
     ssh -X -Y nluongo@alogin1
 }
 
+alogin2() {
+    ssh -X -Y nluongo@alogin2
+}
+
 heplogin() {
     ssh -X -Y nluongo@heplogin1
 }
@@ -44,10 +48,26 @@ swing() {
     ssh -Y swing
 }
 
+improv() {
+    ssh -Y improv
+}
+
 graphcore() {
     ssh -Y graphcore
 }
 
 polaris() {
     ssh -Y polaris
+}
+
+sunspot() {
+    ssh -Y sunspot
+}
+
+bastion() {
+    ssh -Y bastion
+}
+
+aurora() {
+    ssh -Y aurora
 }
