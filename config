@@ -1,0 +1,70 @@
+#Host lxplus.cern.ch
+
+#GSSAPIAuthentication yes
+#GSSAPIDelegateCredentials yes
+
+Host lxplus lxplus.cern.ch
+HostName lxplus.cern.ch
+User nicholas
+Protocol 2
+PubkeyAuthentication no
+PasswordAuthentication yes
+
+Host gitlab gitlab.cern.ch
+HostName gitlab.cern.ch
+Port 7999
+
+Host alogin1
+HostName alogin1.hep.anl.gov
+User nluongo
+IdentityFile ~/.ssh/id_rsa 
+
+Host alogin2
+HostName alogin2.hep.anl.gov
+User nluongo
+
+Host heplogin
+HostName heplogin1.lcrc.anl.gov
+User nluongo
+IdentityFile ~/.ssh/id_rsa 
+
+Host improv
+HostName improv.lcrc.anl.gov
+User nluongo
+IdentityFile ~/.ssh/id_rsa 
+
+Host atlasgpu
+HostName atlasgpu.hep.anl.gov
+User nluongo
+
+Host bebop
+HostName bebop.lcrc.anl.gov
+User nluongo
+
+Host swing
+HostName swing.lcrc.anl.gov
+User nluongo
+
+Host graphcore
+HostName gc-login-01.ai.alcf.anl.gov
+User sheesh
+
+Host polaris
+HostName polaris.alcf.anl.gov
+User sheesh
+
+Host bastion
+HostName bastion.alcf.anl.gov
+User sheesh
+
+#Host aurora
+#HostName login.aurora.alcf.anl.gov
+#User sheesh
+
+Host aurora *.login.aurora.alcf.anl.gov login.aurora.alcf.anl.gov
+    HostName login.aurora.alcf.anl.gov
+    User sheesh
+    ProxyJump bastion.alcf.anl.gov
+Host bastion *.bastion.aclf.anl.gov bastion.alcf.anl.gov
+   HostName bastion.alcf.anl.gov
+   User sheesh

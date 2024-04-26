@@ -6,8 +6,16 @@ alogin() {
     ssh -X -Y nluongo@alogin1
 }
 
+alogin2() {
+    ssh -X -Y nluongo@alogin2
+}
+
 heplogin() {
-    ssh -X -Y nluongo@heplogin1
+    ssh -X -Y nluongo@heplogin
+}
+
+improv() {
+    ssh -X -Y nluongo@improv
 }
 
 setlxplusnode() {
@@ -50,4 +58,12 @@ graphcore() {
 
 polaris() {
     ssh -Y polaris
+}
+
+bastion() {
+    ssh -Y bastion
+}
+
+aurora() {
+    ssh -Y aurora
 }
