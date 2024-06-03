@@ -93,6 +93,122 @@ alias la='ls -A'
 alias l='ls -CF'
 alias lm='ls -lhtr'
 
+# test if the prompt var is not set and also to prevent failures
+# when `$PS1` is unset and `set -u` is used 
+if [ -z "${PS1:-}" ]; then
+    # prompt var is not set, so this is *not* an interactive shell
+    return
+fi
+
+export PS1='\[\e[32m\][\t \u@\h:\w]\$ \[\e[0m\]'
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+
+# Uncomment the following line if you don't like systemctl's auto-paging feature:
+# export SYSTEMD_PAGER=
+
+# User specific aliases and functions
+alias voms="voms-proxy-init -voms atlas"
+alias ls="ls --color=auto"
+alias lm="ls -lhtr"
+alias grep="grep -I"
+
+export RUCIO_ACCOUNT=nicholas
+
+builder() {
+  asetup --restore
+  source x*/setup.sh
+}
+
+tmuxPanes() { 
+  tmux new-session -d -s temp_name
+  tmux split-window -v
+  tmux split-window -h
+  tmux select-pane -U
+  tmux split-window -h
+  tmux resize-pane -D 10
+  tmux select-pane -L
+  tmux select-pane -D
+}
+
+tmuxSplit() { tmux split-window -v \; split-window -h \; select-pane -U \; split-window -h \; resize-pane -D 10 \; select-pane -L\; send-keys "echo 'Did it!'" C-m ; }
+
+mySetup() {
+  project=$1
+  if [[ $project == "bbll" ]]; 
+  then
+    echo "In bbll";
+    folder="/home/nluongo/bbll"
+  elif [[ $project == "MasterShef" ]];
+  then
+    echo "In MasterShef";
+    folder="/home/nluongo/MS"
+  elif [[ $project == "AnaSkim" ]];
+  then
+    echo "In AnaSkim";
+    folder="/home/nluongo/AS"
+  elif [[ $project == "PAU" ]];
+  then
+    echo "In PyAnalysisUtils";
+    folder="/home/nluongo/PAU"
+  elif [[ $project == "DoubleHiggs" ]];
+  then
+    echo "In DoubleHiggs";
+    folder="/home/nluongo/DoubleHiggs"
+  elif [[ $project == "FTAGDumper" ]];
+  then
+    echo "In training-dataset-dumper";
+    folder="/home/nluongo/FTAG/dumper"
+  elif [[ $project == "FTAGupp" ]];
+  then
+    echo "In umami-preprocessing";
+    folder="/home/nluongo/FTAG/upp"
+  elif [[ $project == "salt" ]];
+  then
+    echo "In salt";
+    folder="/home/nluongo/FTAG/salt"
+  elif [ -d $project ];
+  then
+    echo "In $project";
+    folder=$project
+  else
+    echo "$project is not a valid project or directory";
+    return 0
+  fi
+
+  echo $folder
+  cd $folder
+  tmuxPanes
+  tmux send "cd build" ENTER
+  tmux send "asetup --restore" ENTER
+  tmux send "source x*/setup.sh" ENTER
+  tmux attach
+  while [ $(tmux display-message -p '#S') == "temp_name" ]
+  do
+    echo "In while"
+    tmux rename-session -t temp_name "${project}"
+  done
+}
+complete -W 'bbll MasterShef AnaSkim PAU DoubleHiggs FTAGDumper FTAGupp salt' mySetup
+complete -F _cd mySetup
+
+scptolxplus() {
+  if [ $# > 1 ]
+  then
+    FILE_NAME_DEST=$2
+  else
+    FILE_NAME_DEST=''
+  fi
+  scp $1 nicholas@lxplus.cern.ch:/eos/user/n/nicholas/$FILE_NAME_DEST
+}
+
+lcrc() {
+  cd /lcrc/group/ATLAS/users
+}
+
 ath() {
   cd ~/athena
   asetup master,latest,Athena
@@ -223,4 +339,48 @@ case ":$PATH:" in
         ;;
 esac
 
-# <<< juliaup initialize <<<
+tex() {
+  source /soft/hep/hep_texlive.sh
+}
+
+minitree_events() {
+  root $1 -q -e "AnalysisMiniTree->GetEntries()"
+}
+
+minitree_branches() {
+  root $1 -q -e "AnalysisMiniTree->Print()"
+}
+
+# CometML variables for salt training
+. ~/.comet_info
+
+export ATLAS_STORAGE=/lcrc/group/ATLAS/users/
+
+export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
+#alias setupATLAS='source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh -c el9 -b -q -m lcrc'
+alias setupATLAS='source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh'
+
+setupATLAS
+lsetup git
+
+echo 'Use "mySetup _" to get started';
+echo 'Current options: DoubleHiggs, bbll, MasterShef, AnaSkim, PAU, FTAGDumper, FTAGupp, salt';
+
+if tmux has-session 2>/dev/null; then
+  echo "Existing tmux sessions"
+fi
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/gpfs/fs1/home/nluongo/DoubleHiggs/spark/conda/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/gpfs/fs1/home/nluongo/DoubleHiggs/spark/conda/etc/profile.d/conda.sh" ]; then
+        . "/gpfs/fs1/home/nluongo/DoubleHiggs/spark/conda/etc/profile.d/conda.sh"
+    else
+        export PATH="/gpfs/fs1/home/nluongo/DoubleHiggs/spark/conda/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<

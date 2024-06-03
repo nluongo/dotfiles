@@ -32,6 +32,7 @@ set autoindent
 set expandtab
 set smarttab
 set noshiftround
+set smartindent
 
 " Display 5 lines above/below the cursor when scrolling with a mouse.
 set scrolloff=5
