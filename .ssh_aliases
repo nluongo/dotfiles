@@ -11,7 +11,7 @@ alogin2() {
 }
 
 heplogin() {
-    ssh -X -Y nluongo@heplogin1
+    ssh -X -Y -J bebop hepd-0004
 }
 
 setlxplusnode() {
@@ -70,4 +70,8 @@ bastion() {
 
 aurora() {
     ssh -Y aurora
+}
+
+perlmutter() {
+    ssh -Y perlmutter
 }
