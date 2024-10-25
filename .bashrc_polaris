@@ -1,0 +1,229 @@
+# Sample .bashrc for SuSE Linux
+# Copyright (c) SuSE GmbH Nuernberg
+
+# There are 3 different types of shells in bash: the login shell, normal shell
+# and interactive shell. Login shells read ~/.profile and interactive shells
+# read ~/.bashrc; in our setup, /etc/profile sources ~/.bashrc - thus all
+# settings made here will also take effect in a login shell.
+#
+# NOTE: It is recommended to make language settings in ~/.profile rather than
+# here, since multilingual X sessions would not work properly if LANG is over-
+# ridden in every subshell.
+
+# Some applications read the EDITOR variable to determine your favourite text
+# editor. So uncomment the line below and enter the editor of your choice :-)
+export EDITOR=/usr/bin/vim
+#export EDITOR=/usr/bin/mcedit
+
+# For some news readers it makes sense to specify the NEWSSERVER variable here
+#export NEWSSERVER=your.news.server
+
+# If you want to use a Palm device with Linux, uncomment the two lines below.
+# For some (older) Palm Pilots, you might need to set a lower baud rate
+# e.g. 57600 or 38400; lowest is 9600 (very slow!)
+#
+#export PILOTPORT=/dev/pilot
+#export PILOTRATE=115200
+
+test -s ~/.alias && . ~/.alias || true
+
+
+# enable color support of ls and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls --color=auto'
+    #alias dir='dir --color=auto'
+    #alias vdir='vdir --color=auto'
+
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi
+
+
+# some more ls aliases
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+alias lm='ls -lhtr'
+
+export PS1='\[\e[32m\][\t \u@\h:\w]\$ \[\e[0m\]'
+
+
+# User specific aliases and functions
+alias voms="voms-proxy-init -voms atlas"
+alias ls="ls --color=auto"
+alias lm="ls -lhtr"
+alias grep="grep -I"
+
+export RUCIO_ACCOUNT=nicholas
+
+builder() {
+  asetup --restore
+  source x*/setup.sh
+}
+
+tmuxPanes() { 
+  tmux new-session -d -s temp_name
+  tmux split-window -v
+  tmux split-window -h
+  tmux select-pane -U
+  tmux split-window -h
+  tmux resize-pane -D 10
+  tmux select-pane -L
+  tmux select-pane -D
+}
+
+tmuxSplit() { tmux split-window -v \; split-window -h \; select-pane -U \; split-window -h \; resize-pane -D 10 \; select-pane -L\; send-keys "echo 'Did it!'" C-m ; }
+
+mySetup() {
+  project=$1
+  if [[ $project == "bbll" ]]; 
+  then
+    echo "In bbll";
+    folder="/home/nluongo/bbll"
+  elif [[ $project == "MasterShef" ]];
+  then
+    echo "In MasterShef";
+    folder="/home/nluongo/MS"
+  elif [[ $project == "AnaSkim" ]];
+  then
+    echo "In AnaSkim";
+    folder="/home/nluongo/AS"
+  elif [[ $project == "PAU" ]];
+  then
+    echo "In PyAnalysisUtils";
+    folder="/home/nluongo/PAU"
+  elif [[ $project == "DoubleHiggs" ]];
+  then
+    echo "In DoubleHiggs";
+    folder="/home/nluongo/DoubleHiggs"
+  elif [[ $project == "FTAGDumper" ]];
+  then
+    echo "In training-dataset-dumper";
+    folder="/home/nluongo/FTAG/dumper"
+  elif [[ $project == "FTAGupp" ]];
+  then
+    echo "In umami-preprocessing";
+    folder="/home/nluongo/FTAG/upp"
+  elif [[ $project == "salt" ]];
+  then
+    echo "In salt";
+    folder="/home/nluongo/FTAG/salt"
+  elif [ -d $project ];
+  then
+    echo "In $project";
+    folder=$project
+  else
+    echo "$project is not a valid project or directory";
+    return 0
+  fi
+
+  echo $folder
+  cd $folder
+  tmuxPanes
+  tmux send "cd build" ENTER
+  tmux send "asetup --restore" ENTER
+  tmux send "source x*/setup.sh" ENTER
+  tmux attach
+  while [ $(tmux display-message -p '#S') == "temp_name" ]
+  do
+    echo "In while"
+    tmux rename-session -t temp_name "${project}"
+  done
+}
+complete -W 'bbll MasterShef AnaSkim PAU DoubleHiggs FTAGDumper FTAGupp salt' mySetup
+complete -F _cd mySetup
+
+scptolxplus() {
+  if [ $# > 1 ]
+  then
+    FILE_NAME_DEST=$2
+  else
+    FILE_NAME_DEST=''
+  fi
+  scp $1 nicholas@lxplus.cern.ch:/eos/user/n/nicholas/$FILE_NAME_DEST
+}
+
+lcrc() {
+  cd /lcrc/group/ATLAS/users
+}
+
+ath() {
+  cd ~/athena
+  asetup master,latest,Athena
+  cd -
+}
+
+# Alias definitions.
+# You may want to put all your additions into a separate file like
+# ~/.bash_aliases, instead of adding them here directly.
+# See /usr/share/doc/bash-doc/examples in the bash-doc package.
+
+if [ -f ~/.bash_aliases ]; then
+    . ~/.bash_aliases
+fi
+
+# Import ssh aliases
+. ~/.ssh_aliases
+
+# enable programmable completion features (you don't need to enable
+# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
+# sources /etc/bash.bashrc).
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
+fi
+
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/home/nicholas/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/home/nicholas/miniconda3/etc/profile.d/conda.sh" ]; then
+        . "/home/nicholas/miniconda3/etc/profile.d/conda.sh"
+    else
+        export PATH="/home/nicholas/miniconda3/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
+
+export PATH="$PATH:$HOME/bin"
+export PATH="$PATH:$HOME/.local/bin"
+
+alias python='python3'
+
+tmuxPanes() { tmux new-session \; split-window -v \; split-window -h \; select-pane -U \; split-window -h \; resize-pane -D 10 \; select-pane -L; }
+
+tmuxSplit() { tmux split-window -v \; split-window -h \; select-pane -U \; split-window -h \; resize-pane -D 10 \; select-pane -L; }
+
+LS_COLORS='rs=0:di=01;94:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:';
+export LS_COLORS
+
+# >>> juliaup initialize >>>
+
+# !! Contents within this block are managed by juliaup !!
+
+case ":$PATH:" in
+    *:/home/nicholas/.juliaup/bin:*)
+        ;;
+
+    *)
+        export PATH=/home/nicholas/.juliaup/bin${PATH:+:${PATH}}
+        ;;
+esac
+
+# CometML variables for salt training
+. ~/.comet_info
+
+export ATLAS_STORAGE=/eagle/projects/ScalingATLAS/
+
+if tmux has-session 2>/dev/null; then
+  echo "Existing tmux sessions"
+fi
