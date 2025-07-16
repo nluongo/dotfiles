@@ -1,0 +1,64 @@
+lxplus() {
+    ssh -X -Y nicholas@lxplus$1.cern.ch
+}
+
+alogin() {
+    ssh -X -Y nluongo@alogin1
+}
+
+alogin2() {
+    ssh -X -Y nluongo@alogin2
+}
+
+heplogin() {
+    ssh -X -Y -J bebop hepd-0003
+}
+
+improv() {
+    ssh -X -Y nluongo@improv
+}
+
+lxplus6() {
+    ssh -X -Y nicholas@lxplus6.cern.ch
+}
+
+hepatl31() {
+    ssh -X -Y naluongo@hepatl31.uoregon.edu
+}
+
+triumf() {
+    #ssh -X -Y nluongo@triumf-ml1.triumf.ca
+    ssh -X -Y nluongo@triumf-ml1.phas.ubc.ca
+}
+
+bebop() {
+    ssh -Y bebop
+}
+
+swing() {
+    ssh -Y swing
+}
+
+graphcore() {
+    ssh -Y graphcore
+}
+
+sophia() {
+    ssh -Y sophia
+}
+
+polaris() {
+    ssh -Y polaris
+}
+
+bastion() {
+    ssh -Y bastion
+}
+
+aurora() {
+    ssh -Y aurora
+}
+
+perlmutter() {
+    ssh -Y perlmutter
+}
